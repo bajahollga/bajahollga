@@ -621,6 +621,72 @@ int main() {
 	return 0;
 }
 
+
+POSITION lista_poljem::find(double min) {    //dodaj u listu, vraca prvi elemen cija dob je manja od zadane
+	for (POSITION i = first(); i < end(); i++) {
+		if (_elements[i - 1].ocekivanje < min) {
+			return i;
+		}
+	}
+	return end();
+}
+//POSITION position_found = lista.find(min);     //ucitava i uklanja iz liste
+	//while (position_found != lista.end()) {
+	//	lista.remove(position_found);
+	//	//cout << position_found << endl;
+	//	position_found = lista.find(min);
+	//}
+
+	//dat.close();
+
+	//for (POSITION i = lista.first(); i < lista.end(); i = lista.next(i)) {
+	//	ELTYPE element;
+	//	if (lista.read(i, element)) {
+	//		cout << element.drzava << "(" << element.ocekivanje << ")" << endl;
+	//	}
+	//}
+
+
+									//1.4 vjezbe //ubaci random brojeve u dinam
+#include <iostream>
+#include <ctime>
+#include "lista_dinamicka.h"
+#include "high_res_timer.h"
+
+using namespace std;
+
+int random(int min, int max) {
+	return rand() % (max - min + 1) + min;
+}
+
+
+int main() {
+	srand(time(nullptr));
+
+	lista_dinamicka lista;
+	hr_timer timer;
+
+	start_hr_timer(timer);
+	for (int i = 0; i < 100000; i++) {
+		ELTYPE broj = random(1, 100);
+		lista.insert(broj, lista.first());
+	}
+
+	double suma = 0;
+	int nr_elem = 0;
+	for (POSITION i = lista.first(); i != lista.end(); i = lista.next(i)) {
+		ELTYPE broj;
+		lista.read(i, broj);
+		suma += broj;
+		nr_elem++;
+	}
+
+	stop_hr_timer(timer);
+
+	cout << "Prosjek brojeva: " << suma / nr_elem << endl;
+	cout << "Vrijeme potrebno: " << get_elapsed_time_microsec(timer)/1000 << endl;
+	return 0;
+}
                                                                       //5.zadatak 4 vjezbe
 
 	lista_dinamicka lista;
@@ -669,3 +735,686 @@ int main() {
 		if (toupper(element.naziv[0]) == toupper(slovo))
 		{
 			cout << element.naziv << endl;		}	}
+
+										//2.5.vjezbe stog
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include "stog_dinamicki.h"
+
+using namespace std;
+
+
+int main() {
+
+	stog_dinamicki stog;
+
+	string naredba;
+	string temp;
+	string rijec;
+	string na_vrh_stoga;
+	stringstream ss;
+
+
+
+	cout << "Unesi naredbu  (ADD rijec, UNDO ili EXIT)  "<< endl;
+	while (getline(cin,naredba))
+	{
+		cout << "Unesi naredbu  (ADD rijec, UNDO ili EXIT)  " << endl;
+
+		if (naredba=="UNDO")
+		{
+			stog.pop(temp);  //vraca element s vrha i brise ga
+		}
+		else if (naredba == "EXIT")
+		{
+			break;
+		}
+		
+		else {	
+			ss.str(""); //ocisti stringstream
+			ss.clear();
+
+			ss << naredba;
+			getline(ss, temp, ' ');//naredbu u smece
+			getline(ss, rijec);  //rijec u string rijec
+
+			ss.str("");//ocisti stringstream
+			ss.clear();
+
+			//sad rijec u bacvu:
+			ss << na_vrh_stoga << " " << rijec;
+
+
+			stog.push(ss.str());  //utrpaj u stog iz bacve
+
+
+		}
+
+		cout << "--> ";
+		stog.top(na_vrh_stoga);
+		cout << na_vrh_stoga << endl;
+		
+		
+		/*f (stog.top(na_vrh_stoga))
+		{
+			cout << na_vrh_stoga << endl;
+		}
+		else
+		{
+			cout << endl;
+		}*/
+		
+
+	}
+
+
+	return 0;
+}
+											//5.vj  5 zad- red
+											//upis slanje ili kraj
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include "red_dinamicki.h"
+
+using namespace std;
+
+int odabir() {
+	system("cls");
+	cout << "Odaberi: " << endl;
+	cout << "1: upis novog broja" << endl;
+	cout << "2: slanje u dat" << endl;
+	cout << "3: kraj" << endl;
+	int opcija;
+	cin >> opcija;
+	return opcija;
+
+}
+
+bool slanje(red_dinamicki &red, ofstream &out) {
+
+	while (!red.is_empty())
+	{
+		ELTYPE element;
+		red.dequeue(element);
+		out << element << endl;
+	}
+
+	return true;
+}
+
+
+int main() {
+	ofstream out("output.txt");
+	if (!out)
+	{
+		cout << "Greska" << endl;
+		return 404;
+	}
+	//u petlji nudi opcije:
+	//			upis novog broja
+	//			slanje u datoteku
+	//			kraj rada
+	red_dinamicki red;
+
+	bool dalje = true;
+	do
+	{
+		int n = odabir();
+		if (n==1)//upis
+		{
+			cout << "Upisi broj" << endl;
+			ELTYPE broj;
+			cin >> broj;
+			red.enqueue(broj);
+		}
+
+
+		else if (n==2)//slanje
+		{
+			slanje(red, out); //upisat ce i vratit true da se moze vrtit dalje
+
+		}
+		else
+		{
+			dalje = false;
+		}
+
+	} while (dalje);
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+									//bin. stabla 6. vj, zad 1    impl. poljem
+	#include <iostream>
+#include "binarno_stablo.h"
+using namespace std;
+
+//    78
+//  1   14
+//     15  99
+//itd
+
+int main() {
+	//ima 31 cvor, promijenit capacity
+
+	binarno_stablo stablo;
+
+	stablo.create(78); //to je root
+
+	//78 ima djecu 1 i 14
+
+	POSITION root = stablo.root(); //kazemo koja je pozicija
+	stablo.insert_left(root, 1); //koje je lijevo dijete
+	stablo.insert_right(root, 14);  //koje je desno dijete
+	
+	//1 nema djece, idemo na 14
+	POSITION p_14 = stablo.get_right_child(root);
+	//broj 14 je desno dijete od rota
+	stablo.insert_left(p_14, 15); //dodamo mu lijevo dijete
+	stablo.insert_right(p_14, 99); //dodamo mu lijevo dijete
+
+	//15 nema djece, idemo na 99
+	POSITION p_99 = stablo.get_right_child(p_14);
+	//broj 99 je desno dijete od 14
+	stablo.insert_left(p_99, 3); //dodamo mu lijevo dijete
+	stablo.insert_right(p_99, 4); //dodamo mu lijevo dijete
+
+	//sad na 3
+	POSITION p_3 = stablo.get_right_child(p_99);
+	//broj 3 je lijevo dijete od 99
+	stablo.insert_left(p_3, 29); //dodamo mu lijevo dijete
+	stablo.insert_right(p_3, 67); //dodamo mu lijevo dijete
+
+	//sad na 4
+	POSITION p_4 = stablo.get_right_child(p_99);
+	//broj 4 je desno dijete od 99
+	//nema lijevo dijete
+	stablo.insert_right(p_4, 11); //dodamo mu lijevo dijete
+
+
+	stablo.print_tree(); //malo sam promijenio metodu da ne printa adrese ako nema broja
+
+	return 0;
+}
+											//din. stablo  2.zadatak/6vj
+	struct Osoba
+{
+	string ime;
+	string prezime;
+	Osoba(string ime, string prezime);
+	Osoba();
+};
+	Osoba::Osoba(string ime, string prezime)
+{
+	this->ime = ime;
+	this->prezime = prezime;
+}
+
+Osoba::Osoba()
+{
+}
+	#include<iostream>
+#include<string>
+#include"binarno_stablo_dinamicko.h"
+#include "Osoba.h"
+using namespace std;
+
+
+int main() {
+
+	binarno_stablo stablo;
+
+	ELTYPE ana("Ana", "Anic");
+	ELTYPE juro("Juro", "Juric");
+	ELTYPE iva("Iva", "Ivic");
+	ELTYPE ferdo("Ferdo", "Ferdic");
+	ELTYPE dino("Dino", "Dinic");
+	ELTYPE ema("Ema", "Emic");
+
+	stablo.create(ana);
+	POSITION root = stablo.root();
+
+	stablo.insert_left(root, juro);
+	stablo.insert_right(root, iva);
+
+	POSITION p_iva = stablo.get_right_child(root);
+	stablo.insert_left(p_iva, ferdo);
+
+	POSITION p_ferdo = stablo.get_left_child(p_iva);
+	stablo.insert_left(p_ferdo, dino);
+	stablo.insert_right(p_ferdo, ema);
+
+	stablo.print_tree(stablo.root(), 0);
+
+	return 0;
+}
+	////////////////////////////////////////////////////////////      
+	//definicija cvora da sadrzi i pokazivac na roditelja				//promijeni da pokazuje parent
+#ifndef _BINARNO_STABLO_H_
+#define _BINARNO_STABLO_H_
+
+#include <iostream>
+#include <string>
+#include "Osoba.h"
+
+using namespace std;
+
+typedef Osoba ELTYPE;
+
+struct cvor;
+
+typedef cvor* POSITION;
+
+struct cvor {
+	ELTYPE element;
+	POSITION left_child;
+	POSITION right_child;
+	POSITION parent;
+};
+
+class binarno_stablo {
+private:
+	POSITION root_node;
+	POSITION create_new_node(const ELTYPE& element);
+
+public:
+	void create(const ELTYPE& element);
+	bool insert_left(const POSITION parent, const ELTYPE& element);
+	bool insert_right(const POSITION parent, const ELTYPE& element);
+	POSITION root();
+	POSITION get_left_child(const POSITION parent);
+	POSITION get_right_child(const POSITION parent);
+	bool get_node(const POSITION pos, ELTYPE& element);
+	void print_tree(const POSITION node, int level);
+};
+
+#endif	
+	
+	#include "binarno_stablo_dinamicko.h"
+#include "Osoba.h"
+#include <iostream>
+using namespace std;
+
+/*************** PRIVATNE METODE ****************/
+
+POSITION binarno_stablo::create_new_node(const ELTYPE& element) {
+	cvor* novi = new cvor;
+	novi->element = element;
+	novi->left_child = nullptr;
+	novi->right_child = nullptr;
+	novi->parent = nullptr;
+	
+	return novi;
+}
+
+/*************** JAVNE METODE ****************/
+
+void binarno_stablo::create(const ELTYPE& element) {
+	root_node = create_new_node(element);
+}
+
+bool binarno_stablo::insert_left(const POSITION parent, const ELTYPE& element) {
+	if (parent->left_child != nullptr) {
+		return false;
+	}
+
+	parent->left_child = create_new_node(element);
+	parent->left_child->parent = parent;
+	return true;
+}
+
+bool binarno_stablo::insert_right(const POSITION parent, const ELTYPE& element) {
+	if (parent->right_child != nullptr) {
+		return false;
+	}
+
+	parent->right_child = create_new_node(element);
+	parent->right_child->parent = parent;
+	return true;
+}
+
+POSITION binarno_stablo::root() {
+	return root_node;
+}
+
+POSITION binarno_stablo::get_left_child(const POSITION parent) {
+	return parent->left_child;
+}
+
+POSITION binarno_stablo::get_right_child(const POSITION parent) {
+	return parent->right_child;
+}
+
+bool binarno_stablo::get_node(const POSITION pos, ELTYPE& element) {
+	element = pos->element;
+	return true;
+}
+
+void binarno_stablo::print_tree(const POSITION node, int level) {
+	if (node == nullptr) { return; }
+
+	ELTYPE element;
+	if (get_node(node, element)) {
+		for (int i = 0; i < level; i++) { cout << " "; }
+		//cout << element.ime<<" "<<element.prezime<< endl; // TU MIJENJAJ ISPIS.
+		cout << element.to_string()<< endl; // TU MIJENJAJ ISPIS.
+	}
+
+	print_tree(node->left_child, level + 3);
+	print_tree(node->right_child, level + 3);
+}
+	
+	
+	
+	struct Osoba
+{
+	string ime;
+	string prezime;
+	Osoba(string ime, string prezime);
+	Osoba();
+
+};
+	#include "Osoba.h"
+
+Osoba::Osoba(string ime, string prezime)
+{
+	this->ime = ime;
+	this->prezime = prezime;
+}
+
+Osoba::Osoba()
+{
+}
+		
+	
+	
+
+int main() {
+
+	binarno_stablo stablo;
+
+	ELTYPE ana("Ana", "Anic");
+	ELTYPE juro("Juro", "Juric");
+	ELTYPE iva("Iva", "Ivic");
+	ELTYPE ferdo("Ferdo", "Ferdic");
+	ELTYPE dino("Dino", "Dinic");
+	ELTYPE ema("Ema", "Emic");
+
+	stablo.create(ana);
+	POSITION root = stablo.root();
+
+	stablo.insert_left(root, juro);
+	stablo.insert_right(root, iva);
+
+	POSITION p_iva = stablo.get_right_child(root);
+	stablo.insert_left(p_iva, ferdo);
+
+	POSITION p_ferdo = stablo.get_left_child(p_iva);
+	stablo.insert_left(p_ferdo, dino);
+	stablo.insert_right(p_ferdo, ema);
+
+	stablo.print_tree(stablo.root(), 0);
+
+	POSITION temp = stablo.get_right_child(p_ferdo);
+	int n = 0;
+	while (temp->parent !=nullptr)
+	{
+		n++;
+		temp = temp->parent;
+	}
+
+	cout << "Dubina zadnjeg je: " << n << endl;
+
+	return 0;
+}	
+	
+	
+	
+	
+	
+	
+	
+	//vj.7 1.zad	//binarno stablo/inorder/pre/post
+	#include <iostream>
+#include "binarno_stablo.h"
+
+using namespace std;
+
+int main() {
+	//								63
+	//						32				70
+	//				27			33					90
+	//					30			50						92
+	binarno_stablo stablo;
+	stablo.create(63);
+	
+	POSITION root = stablo.root();
+	stablo.insert_left(root, 32);
+	stablo.insert_right(root, 70);
+	
+	POSITION node_32 = stablo.get_left_child(root);
+	stablo.insert_left(node_32, 27);
+	stablo.insert_right(node_32, 33);
+
+	POSITION node_27 = stablo.get_left_child(node_32);
+	stablo.insert_right(node_27, 30);
+
+	POSITION node_33 = stablo.get_right_child(node_32);
+	stablo.insert_right(node_33, 50);
+
+	POSITION node_70 = stablo.get_right_child(root);
+	stablo.insert_right(node_70, 90);
+
+	POSITION node_90 = stablo.get_right_child(node_70);
+	stablo.insert_right(node_90, 92);
+
+	cout << "inorder (ovo se ponasa kao bst!):";
+	stablo.inorder(root);
+	cout << endl;
+	cout << "preorder:";
+	stablo.preorder(root);
+	cout << endl;
+	cout << "postorder:";
+	stablo.postorder(root);
+	cout << endl;
+
+	return 0;
+}
+	
+								//5.zad 7 vjezbe //u bst cuva podatke, da upise sifru i dal postoji
+	
+	
+	
+	#ifndef _DRZAVA_H_
+#define _DRZAVA_H_
+#include <string>
+using namespace std;
+
+struct drzava {
+	string naziv;
+	string sifra;
+};
+
+#endif
+
+	#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include "bst.h"
+
+using namespace std;
+
+bool ucitajdrzave(bst &bst, string naziv) {
+	ifstream dat(naziv);
+	if (!dat) {
+		return false;
+	}
+
+	string line;
+	getline(dat, line);
+	while (getline(dat, line)) {
+		ELTYPE drzava;
+		stringstream ss(line);
+		getline(ss, drzava.naziv, ';');
+		getline(ss, drzava.sifra);
+		bst.insert(drzava);
+	}
+	dat.close();
+	return true;
+}
+
+
+int main() {
+
+	bst bst;
+	if (!ucitajdrzave(bst, "Drzave.csv")) {
+		cout << "Nije moguce pristupiti datoteci" << endl;
+		return 1;
+	}
+
+	cout << "Unesite sifru za pretragu:";
+	ELTYPE drzava;
+	getline(cin, drzava.sifra);
+	if (bst.exists(drzava)) {
+		cout << "drzava postoji" << endl;
+	}
+	else {
+		cout << "drzava ne postoji" << endl;
+
+	}
+
+	return 0;
+}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+							//hrpa  //najveci se shifta gore , roditelj mora biti veci
+	
+	#include <iostream>
+#include "heap.h"
+
+using namespace std;
+
+int main() {
+
+    heap heap;
+
+    heap.insert(42);
+    heap.insert(27);
+    heap.insert(16);
+    heap.insert(7);
+    heap.insert(19);
+    heap.insert(10);
+    heap.insert(66);
+
+    while (!heap.is_empty()) {
+        cout << heap.remove() << endl;
+    }
+
+    return 0;
+}
+								//3.zadatak  vj 8  drzave u hrpu. ispisi elemente
+	#ifndef _DRZAVA_H_
+#define _DRZAVA_H_
+
+#include <string>
+
+using namespace std;
+
+struct drzava {
+	string naziv;
+	string sifra;
+};
+
+#endif
+	
+	#include <iostream>
+#include <fstream>
+#include <sstream>
+#include "heap.h"
+
+using namespace std;
+
+bool ucitaj_podatke(heap &heap, string naziv) {
+	ifstream dat(naziv);
+	if (!dat) {
+		return false;
+	}
+
+	string line;
+	getline(dat, line);
+	while (getline(dat, line)) {
+		stringstream ss(line);
+		ELTYPE drzava;
+		getline(ss, drzava.naziv, ';');
+		getline(ss, drzava.sifra);
+		heap.insert(drzava);
+	}
+
+	dat.close();
+	return true;
+}
+
+
+int main() {
+
+	heap heap;
+	if (!ucitaj_podatke(heap, "Sifre_drzava.csv")) {
+		cout << "nije moguce pristupiti datoteci" << endl;
+		return 1;
+	}
+	
+	while (!heap.is_empty()) {
+		ELTYPE drzava = heap.remove();
+		cout << drzava.naziv << "(" << drzava.sifra << ")" << endl;
+	}
+
+
+	return 0;
+}
+	
+	                                                               //vj 8 zad 5 prioritetni red ubaci od 1-100
+									//ispisi sve iz dinam reda
+	#include <iostream>
+#include "prioritetni_red.h"
+
+using namespace std;
+
+int main() {
+
+	prioritetni_red red;
+	for (int i = 1; i < 100; i++) {
+		red.enqueue(i, i);
+	}
+
+	ELTYPE broj;
+	while (red.dequeue(broj)) {
+		cout << broj << endl;
+	}
+
+	return 0;
+}
+							//verzija da 200 prioritet ak je paran, 100 ako je neparan
+	int main() {
+
+	prioritetni_red red;
+	for (int i = 1; i < 100; i++) {
+		int priority;
+		if (i % 2 == 0) {
+			priority = 200;
+		} else {
+			priority = 100;
+		}
+		red.enqueue(i, priority);
+	}
+
+	ELTYPE broj;
+	while (red.dequeue(broj)) {
+		cout << broj << endl;
+	}
+
+	return 0;
+}
+	
