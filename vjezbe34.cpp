@@ -1,5 +1,6 @@
  	
 										//binarne citanje:
+ifstream is("banke.bin", ios_base::binary);
 int n; //za int
 in.read((char*)&n, sizeof(n));
 //za stringove:
@@ -9,6 +10,53 @@ char* temp = new char[length];  //alociraj mem na hrpi
 in.read(temp, n);    //procitaj znakove u mem
 string s = string s(temp, n);  //string na stogu
 delete[] temp;  //oslobodi mem
+							//PRIMJER vektori citanje (vj1 zad 4)
+struct banka
+	{
+		string ime;
+		string broj;
+	};
+
+	banka ba;
+	vector<banka>vektor;
+
+string temp;
+
+	while (true)
+	{
+		short duljina;
+
+		if (!dat.read((char*)&duljina, sizeof(duljina))) {  //duljina stringa
+			break;
+		}
+
+
+		char* pchar = new char[duljina];
+		dat.read(pchar, duljina); //sad procita string u naziv;
+		string naziv = string(pchar, duljina);
+		delete[] pchar;
+
+		int b = 7;   //nastavlja se, nije zapisano koliko je dugacak
+		//vmbdi
+		char* ppchar = new char[b];
+		dat.read(ppchar, b); //duljina stringa
+		string vmbdi = string(ppchar, b);
+
+		delete[] ppchar;
+
+		ba.ime = naziv;  //za vektor
+		ba.broj = vmbdi; //za vektor
+		
+		vektor.push_back(ba); //za vektor
+	}
+
+	for (int i = vektor.size() - 1; i >= 0; i--)  //obrnuti  //za print vektora i strukture
+	//for (int i = 0; i < vektor.size(); i++)
+	{
+		cout << vektor[i].ime << "; " << vektor[i].broj << endl;
+		}
+
+	dat.close();
 
 										//binarne pisanje:
 int broj =55; //za int
@@ -20,6 +68,23 @@ string s = "Miro";
 int length = s.length();//duljina u bajtovima
 out.write((char*)&length, sizeof(length)); //pisi broj znakova stringa
 out.write(s.c_str(), length);//upisi string
+								//PRIMJER vektori pisanje (vj1, zad 4)
+int n = vektor.size();
+	//cout << n << endl;
+	for (size_t i = 0; i < n; i++)
+	{
+		string novabanka = vektor[i].ime;
+		short duljina = novabanka.length();
+
+		out.write((char*)&duljina, sizeof(duljina)); //duljina stringa
+		out.write(novabanka.c_str(), duljina);  //string ime
+
+
+		string novibroj = vektor[i].broj;
+		short duljina2 = 7;
+		out.write(novibroj.c_str(), duljina2);  //string broj
+	}
+	out.close();
 
 
 
@@ -98,66 +163,7 @@ void razlomak::pomnozi(int n) {
 			cout <<fixed<< zbroj << endl;
 		}
 
-										//1.vjezbe 4.zadatak citaj iz binarne
-using namespace std;
-
-struct banka {
-	string _naziv;
-	string _vbdi;
-	string to_string();
-};
-string banka::to_string() {
-	stringstream ss;
-	ss << this->_naziv << ", " << this->_vbdi;
-	return ss.str();
-}
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include "banka.h"
-
-using namespace std;
-
-string ucitaj_string(ifstream &is, short length) {
-	char* temp = new char[length];
-	is.read(temp, length);
-	string s = string(temp, length);
-	delete[] temp;
-	return s;
-}
-
-void print(vector<banka> &banke) {
-    for (int i = banke.size() - 1; i >= 0; i--) {
-        cout << banke[i].to_string() << endl;
-    }
-}
-int main() {
-
-	ifstream is("banke.bin", ios_base::binary);
-	if (!is) {
-		cout << "pogreska kod otvaranja datoteke" << endl;
-		return 1;
-	}
-
-	vector<banka> banke;
-	while (true) {
-		short length;
-		if (!is.read((char*)&length, sizeof(short))) {
-			break;
-		}
-		banka b;
-		b._naziv = ucitaj_string(is, length);
-		b._vbdi = ucitaj_string(is, 7);
-
-		banke.push_back(b);
-	}
-	is.close();
-
-    print(banke);
-
-	return 0;
-}
-
+										
 										//2.vjezbe 1.zadatak tocke
 #include <iostream>
 #include <iomanip>
@@ -243,7 +249,7 @@ int tocka::dohvati_x() {
 int tocka::dohvati_y() {
 	return this->y;
 }
-									//quick sort i bubble sort
+											//quick sort i bubble sort
 #include <iostream>
 #include <ctime>
 #include "high_res_timer.h"
@@ -445,6 +451,90 @@ int main() {
     bin.close();
 	return 0;
 }
+							//zadatak 5 vjezbe 2 prepisi nazive za koje nema podataka
+
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <ctime>
+#include <sstream>
+using namespace std;
+
+int main() {
+	
+	ifstream dat("Broj_znanstvenika_na_milijun_stanovnika.csv");
+	if (!dat) {
+		cout << "Greska pri otvaranju datoteke" << endl;
+		return 1;
+	}
+
+	string temp;
+	getline(dat, temp); 
+
+	string naziv;
+	
+	bool nema_podataka;
+	while (getline(dat, naziv, ';')) {
+	
+		// Provjera ima li u 10 godina ijedan podatak (čim nađem prvi, ne moram dalje tražiti).
+		nema_podataka = true;
+		for (int i = 0; i < 10; i++) {
+			getline(dat, temp, ';');
+
+			if (temp!="")
+			{
+				nema_podataka = false;
+				break;
+			}
+
+		}
+		getline(dat, temp); // Odbacim ostatak linije.
+
+		if (nema_podataka) {
+			cout << naziv << endl;
+		}
+	}
+
+	dat.close();
+	//string line;  //ili ovako
+//getline(is, line);
+//while (getline(is, line)) {
+//
+//	stringstream ss(line);
+//	string naziv;
+//	getline(ss, naziv, ';');
+//
+//	string temp;
+//	bool nema_podataka = true;
+//	for (int i = 0; i < 10; i++) {
+//		stringstream converter;
+//		getline(ss, temp, ';');
+//		converter << temp;
+//		int broj_znanstvenika;
+//		if (converter >> broj_znanstvenika) {
+//			nema_podataka = false;
+//			break;
+//		}
+//	}
+//
+//
+//	if (nema_podataka) {
+//		cout << naziv << endl;
+//	}
+//}
+//is.close();
+
+	return 0;
+}
+
+
+
+
+
+
+
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //4.zadatak, 3.vjezbe
