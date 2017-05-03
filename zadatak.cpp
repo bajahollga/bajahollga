@@ -536,7 +536,7 @@ int main() {
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //4.zadatak, 3.vjezbe
 using namespace std;
 int main() {
@@ -885,7 +885,7 @@ int main() {
 
 	} while (dalje);
 	
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 									//bin. stabla 6. vj, zad 1    impl. poljem
 	#include <iostream>
 #include "binarno_stablo.h"
@@ -1323,59 +1323,422 @@ int main() {
 
 using namespace std;
 
-struct drzava {
+struct Drzava {
 	string naziv;
 	string sifra;
 };
 
 #endif
 	
-	#include <iostream>
-#include <fstream>
-#include <sstream>
+	#include<iostream>
+#include<string>
+#include<fstream>
+#include<sstream>
 #include "heap.h"
 
 using namespace std;
 
-bool ucitaj_podatke(heap &heap, string naziv) {
-	ifstream dat(naziv);
-	if (!dat) {
-		return false;
-	}
+
+
+void ucitaj(heap &hrpa, ifstream &dat) {
 
 	string line;
 	getline(dat, line);
-	while (getline(dat, line)) {
-		stringstream ss(line);
+	while (getline(dat, line))
+	{
+		//cout << line << endl;
+	stringstream ss;
+	ss << line;
+
+
+	ELTYPE drzava;
+	getline(ss, drzava.naziv, ';');
+	getline(ss, drzava.sifra);
+	
+	hrpa.insert(drzava);
+	}
+	
+}
+
+int main() {
+
+	ifstream dat("Sifre_drzava.csv");
+	if (!dat)
+	{
+		cout << "greska" << endl;
+		return 404;
+	}
+
+	//u hrpu ubacivat iz ifstreama
+
+	heap hrpa;
+	//u hrpu iz strema, zgurat u metodu
+	ucitaj(hrpa, dat);
+
+	dat.close();
+
+	//proc po hrpi  //while not empty
+
+	while (!hrpa.is_empty())
+	{
+		ELTYPE el=hrpa.remove(); //ovako jer vraca nesto, ne moze kao na vjezbama prije
+
+		cout << el.naziv << "; "<<el.sifra << endl;  //ispis je obruti
+
+	}
+	return 0;
+}
+	                  
+	//cpp heap
+	
+	#include <string>
+#include <iostream>
+#include "heap.h"
+using namespace std;
+
+/**************** PRIVATNO ****************************/
+
+POSITION heap::calc_left(POSITION parent) {
+	return parent * 2 + 1;
+}
+
+POSITION heap::calc_right(POSITION parent) {
+	return parent * 2 + 2;
+}
+
+POSITION heap::calc_parent(POSITION child) {
+	return (child - 1) / 2;
+}
+
+bool heap::is_full() {
+	return _next == CAPACITY;
+}
+
+void heap::reheapify_upward() {
+	// Pomiči taj element prema vrhu hrpe.
+	POSITION pos = _next;
+
+	// Petlju vrtimo sve dok ne dođemo do korijena ili dok roditelj nije veći ili jednak djetetu.
+	
+	
+	
+
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	while (pos > 0 && _elements[pos].sifra < _elements[calc_parent(pos)].sifra) {				//mijenjat u manje za 4.zadatak	(preko sifre ga mozemo nac //tu se raspao
+		swap(_elements[pos], _elements[calc_parent(pos)]);
+
+		pos = calc_parent(pos);
+	}
+}
+
+void heap::reheapify_downward() {
+	// Indeks trenutnog čvora roditelja, počinjemo s korijenom.
+	POSITION pos = 0;
+	
+	// Radi sve dok je indeks roditelja na predzadnjem nivou.
+	while (pos < _next / 2) {
+
+		// Izračunaj indeks djeteta koje sadrži veći element.
+		POSITION left_child = calc_left(pos);
+		POSITION right_child = calc_right(pos);
+
+		POSITION index_with_greater_value;
+
+		// Moguće su tri situacije: nema djece, postoji lijevo dijete ili postoje oba djeteta.
+		if (left_child >= _next && right_child >= _next) {
+			return; // Nema djece.
+		}
+		else if (left_child < _next && right_child >= _next) {
+			index_with_greater_value = left_child; // Postoji samo lijevo.
+		}
+		else { // Postoje oba djeteta pa uspoređujem koje je veće.
+			
+			
+			   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			if (_elements[left_child].sifra < _elements[right_child].sifra) {			//mijenjat u manje za 4.zadatak					 //tu se raspao
+				index_with_greater_value = left_child;
+			}
+			else {
+				index_with_greater_value = right_child;
+			}
+		}
+
+		// Zamijeni ako je u djetetu veći element.
+		
+		
+		
+		
+		
+		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		if (_elements[pos].sifra > _elements[index_with_greater_value].sifra) {             	//mijenjat u manje za 4.zadatak	 //tu se raspao
+			swap(_elements[pos], _elements[index_with_greater_value]);
+		}
+		else {
+			// Inače je algoritam gotov, element je na svom mjestu.
+			return;
+		}
+
+		// Nastavi zamjene u toj grani.
+		pos = index_with_greater_value;
+	}
+}
+
+/**************** JAVNO ****************************/
+
+heap::heap() {
+	_next = 0;
+}
+
+bool heap::is_empty() {
+	return _next == 0;
+}
+
+void heap::insert(const ELTYPE& element) {
+	if (is_full()) {
+		throw string("Hrpa je puna!");
+	}
+
+	// Spremi element na sljedeće mjesto.
+	_elements[_next] = element;
+
+	reheapify_upward();
+
+	// Označi da smo ubacili još jedan element.
+	_next++;
+}
+
+ELTYPE heap::remove() {
+	if (is_empty()) {
+		throw string("Hrpa je prazna");
+	}
+
+	ELTYPE element_na_vrhu = _elements[0];
+
+	// Označi da vadimo element.
+	_next--;
+
+	// Ako nismo obrisali korijen, presloži hrpu.
+	if (_next > 0) {
+
+		// Stavi zadnji element na mjesto korijena.
+		_elements[0] = _elements[_next];
+
+		// Presloži hrpu.
+		reheapify_downward();
+	}
+
+	return element_na_vrhu;
+}
+
+									//vj8 zad 4 izmjenjeni 3.zad.
+	#include<iostream>
+#include<string>
+#include<fstream>
+#include<sstream>
+#include "heap.h"
+
+using namespace std;
+
+
+
+void ucitaj(heap &hrpa, ifstream &dat) {
+
+	string line;
+	getline(dat, line);
+	while (getline(dat, line))
+	{
+		//cout << line << endl;
+		stringstream ss;
+		ss << line;
+
+
 		ELTYPE drzava;
 		getline(ss, drzava.naziv, ';');
 		getline(ss, drzava.sifra);
-		heap.insert(drzava);
+
+		hrpa.insert(drzava);
 	}
 
-	dat.close();
-	return true;
 }
 
 
 int main() {
 
-	heap heap;
-	if (!ucitaj_podatke(heap, "Sifre_drzava.csv")) {
-		cout << "nije moguce pristupiti datoteci" << endl;
-		return 1;
-	}
-	
-	while (!heap.is_empty()) {
-		ELTYPE drzava = heap.remove();
-		cout << drzava.naziv << "(" << drzava.sifra << ")" << endl;
+	ifstream dat("Sifre_drzava.csv");
+	if (!dat)
+	{
+		cout << "greska" << endl;
+		return 404;
 	}
 
+	//u hrpu ubacivat iz ifstreama
+
+	heap hrpa;
+	//u hrpu iz strema, zgurat u metodu
+	ucitaj(hrpa, dat);
+
+	dat.close();
+
+	//proc po hrpi  //while not empty
+
+	while (!hrpa.is_empty())
+	{
+		ELTYPE el = hrpa.remove(); //ovako jer vraca nesto, ne moze kao na vjezbama prije
+
+		cout << el.naziv << "; " << el.sifra << endl;  //ispis je obruti
+
+	}
 
 	return 0;
 }
 	
-	                                                               //vj 8 zad 5 prioritetni red ubaci od 1-100
+	//cpp heap
+	#include <string>
+#include <iostream>
+#include "heap.h"
+using namespace std;
+
+/**************** PRIVATNO ****************************/
+
+POSITION heap::calc_left(POSITION parent) {
+	return parent * 2 + 1;
+}
+
+POSITION heap::calc_right(POSITION parent) {
+	return parent * 2 + 2;
+}
+
+POSITION heap::calc_parent(POSITION child) {
+	return (child - 1) / 2;
+}
+
+bool heap::is_full() {
+	return _next == CAPACITY;
+}
+
+void heap::reheapify_upward() {
+	// Pomiči taj element prema vrhu hrpe.
+	POSITION pos = _next;
+
+	// Petlju vrtimo sve dok ne dođemo do korijena ili dok roditelj nije veći ili jednak djetetu.
+
+
+
+
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	while (pos > 0 && _elements[pos].sifra < _elements[calc_parent(pos)].sifra) {			//mijenjat u manje(preko sifre ga mozemo nac //tu se raspao
+		swap(_elements[pos], _elements[calc_parent(pos)]);
+
+		pos = calc_parent(pos);
+	}
+}
+
+void heap::reheapify_downward() {
+	// Indeks trenutnog čvora roditelja, počinjemo s korijenom.
+	POSITION pos = 0;
+
+	// Radi sve dok je indeks roditelja na predzadnjem nivou.
+	while (pos < _next / 2) {
+
+		// Izračunaj indeks djeteta koje sadrži veći element.
+		POSITION left_child = calc_left(pos);
+		POSITION right_child = calc_right(pos);
+
+		POSITION index_with_greater_value;
+
+		// Moguće su tri situacije: nema djece, postoji lijevo dijete ili postoje oba djeteta.
+		if (left_child >= _next && right_child >= _next) {
+			return; // Nema djece.
+		}
+		else if (left_child < _next && right_child >= _next) {
+			index_with_greater_value = left_child; // Postoji samo lijevo.
+		}
+		else { // Postoje oba djeteta pa uspoređujem koje je veće.
+
+
+			   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			if (_elements[left_child].sifra < _elements[right_child].sifra) {			//mijenjat u manje						 //tu se raspao
+				index_with_greater_value = left_child;
+			}
+			else {
+				index_with_greater_value = right_child;
+			}
+		}
+
+		// Zamijeni ako je u djetetu veći element.
+
+
+
+
+
+		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		if (_elements[pos].sifra > _elements[index_with_greater_value].sifra) {                 //mijenjat u manje	 //tu se raspao
+			swap(_elements[pos], _elements[index_with_greater_value]);
+		}
+		else {
+			// Inače je algoritam gotov, element je na svom mjestu.
+			return;
+		}
+
+		// Nastavi zamjene u toj grani.
+		pos = index_with_greater_value;
+	}
+}
+
+/**************** JAVNO ****************************/
+
+heap::heap() {
+	_next = 0;
+}
+
+bool heap::is_empty() {
+	return _next == 0;
+}
+
+void heap::insert(const ELTYPE& element) {
+	if (is_full()) {
+		throw string("Hrpa je puna!");
+	}
+
+	// Spremi element na sljedeće mjesto.
+	_elements[_next] = element;
+
+	reheapify_upward();
+
+	// Označi da smo ubacili još jedan element.
+	_next++;
+}
+
+ELTYPE heap::remove() {
+	if (is_empty()) {
+		throw string("Hrpa je prazna");
+	}
+
+	ELTYPE element_na_vrhu = _elements[0];
+
+	// Označi da vadimo element.
+	_next--;
+
+	// Ako nismo obrisali korijen, presloži hrpu.
+	if (_next > 0) {
+
+		// Stavi zadnji element na mjesto korijena.
+		_elements[0] = _elements[_next];
+
+		// Presloži hrpu.
+		reheapify_downward();
+	}
+
+	return element_na_vrhu;
+}
+
+	
+	
+	
+	
+	
+	
+									//vj 8 zad 5 prioritetni red ubaci od 1-100
 									//ispisi sve iz dinam reda
 	#include <iostream>
 #include "prioritetni_red.h"
