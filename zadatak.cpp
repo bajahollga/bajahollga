@@ -1,4 +1,504 @@
- 	
+ 	0 2 4 6 5 3 1 8 10 9 7
+
+											  //unos postoji ili ne   bst
+#include <iostream>
+#include <fstream>
+#include "bst.h"
+#include "high_res_timer.h"
+
+using namespace std;
+
+
+
+
+void ucitaj(int *polje, int n, ifstream &in) {
+
+	for (int i = 0; i < n ; i++)
+	{
+		in >> polje[i];
+	}
+	
+}
+
+void ucitaj_bst(bst &stablo_trazenja, int n, ifstream &in) {
+
+	for (int i = 0; i < n; i++)
+	{
+		ELTYPE el;
+		in >> el;
+		
+		stablo_trazenja.insert(el);
+	}
+
+}
+
+
+bool pretrazi(int *polje, int n, int broj) {
+
+	for (int i = 0; i < n; i++)
+	{
+		if (broj== polje[i])
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
+int main() {
+	//brze je od zadatka 2,  1.02ms
+
+		
+	ifstream in("slucajni_brojevi.txt");
+	if (!in)
+	{
+		cout << "Greska" << endl;
+		return 1;
+	}
+	const int n = 20000;
+	
+	bst stablo_trazenja;
+
+	ucitaj_bst(stablo_trazenja, n, in);
+
+
+	cout << "Unesi broj" << endl;
+	ELTYPE broj;
+	cin >> broj;
+
+	hr_timer(timer);
+	start_hr_timer(timer);
+
+
+	if (stablo_trazenja.exists(broj))
+	{
+		cout << "Ima ga" << endl;
+	}
+	else
+	{
+		cout << "Nema ga" << endl;
+	}
+
+
+	stop_hr_timer(timer);
+	cout << fixed << get_elapsed_time_microsec(timer) / 1000 << " ms" << endl;
+
+
+
+
+
+
+	//zadatak 1
+	/*
+	int* polje = new int[n];
+
+	ucitaj(polje, n, in);
+
+
+	cout << "Unesi broj" << endl;
+	int broj;
+	cin >> broj;
+
+	hr_timer(timer);
+	start_hr_timer(timer);
+
+
+	if (pretrazi(polje, n, broj))
+	{
+		cout << "Ima ga" << endl;
+	}
+	else
+	{
+		cout << "Nema ga" << endl;
+	}
+
+
+	stop_hr_timer(timer);
+	cout << fixed << get_elapsed_time_microsec(timer) / 1000 << " ms" << endl;
+
+	in.close();
+
+
+	delete[] polje;*/
+
+
+
+	in.close();
+
+	return 0;
+}
+													//	ubaci u heap pa max to min
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include "heap.h"
+
+using namespace std;
+
+bool ucitaj_podatke(heap &heap, string naziv) {
+	ifstream dat(naziv);
+	if (!dat) {
+		return false;
+	}
+
+	string line;
+	getline(dat, line);
+	while (getline(dat, line)) {
+		stringstream ss(line);
+		ELTYPE drzava;
+		getline(ss, drzava.naziv, ';');
+		getline(ss, drzava.sifra);
+		heap.insert(drzava);
+	}
+
+	dat.close();
+	return true;
+}
+
+
+int main() {
+
+	heap heap;
+	if (!ucitaj_podatke(heap, "Sifre_drzava.csv")) {
+		cout << "nije moguce pristupiti datoteci" << endl;
+		return 1;
+	}
+	
+	while (!heap.is_empty()) {
+		ELTYPE drzava = heap.remove();
+		cout << drzava.naziv << "(" << drzava.sifra << ")" << endl;
+	}
+
+
+	return 0;
+}
+												//max 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+							//1.4 vjezbe //ubaci random brojeve u dinam listu
+#include <iostream>
+#include <ctime>
+#include "lista_dinamicka.h"
+#include "high_res_timer.h"
+
+using namespace std;
+
+int random(int min, int max) {
+	return rand() % (max - min + 1) + min;
+}
+
+
+int main() {
+	srand(time(nullptr));
+
+	lista_dinamicka lista;
+	hr_timer timer;
+
+	start_hr_timer(timer);
+	for (int i = 0; i < 100000; i++) {
+		ELTYPE broj = random(1, 100);
+		lista.insert(broj, lista.first());
+	}
+
+	double suma = 0;
+	int nr_elem = 0;
+	for (POSITION i = lista.first(); i != lista.end(); i = lista.next(i)) {
+		ELTYPE broj;
+		lista.read(i, broj);
+		suma += broj;
+		nr_elem++;
+	}
+
+	stop_hr_timer(timer);
+
+	cout << "Prosjek brojeva: " << suma / nr_elem << endl;
+	cout << "Vrijeme potrebno: " << get_elapsed_time_microsec(timer)/1000 << endl;
+	return 0;
+}
+                                                                     			 //5.zadatak 4 vjezbe
+
+	lista_dinamicka lista;
+
+
+	string temp;
+	getline(dat, temp);//prvi red
+
+	while ((getline(dat,temp)))
+	{
+		//cout << temp << endl;
+		stringstream ss;
+		ss << temp;//bacva
+
+		string smece;
+		ELTYPE drzava;
+		getline(ss, drzava.naziv, ';');
+		getline(ss, drzava.sifra, ';');
+
+		getline(ss, smece);
+
+		lista.insert(drzava, lista.first());
+
+	}
+
+	/*for (POSITION i = lista.first(); i != lista.end(); i=lista.next(i))
+	{
+		ELTYPE element;
+		lista.read(i, element);
+		cout << element.naziv << "; " << element.sifra << endl;
+	}*/
+
+	dat.close();
+
+	//sad od korisnika ucitat slovo da 
+
+	char slovo;
+	cout << "Unesi slovo" << endl;
+	cin >> slovo;
+
+	for (POSITION i = lista.first(); i != lista.end(); i = lista.next(i))
+	{
+		ELTYPE element;
+		lista.read(i, element);
+
+		if (toupper(element.naziv[0]) == toupper(slovo))
+		{
+			cout << element.naziv << endl;		}	}
+
+
+
+
+												//na najefikasniji obrnutim redom    stog
+
+#include<iostream>
+#include<string>
+#include<fstream>
+#include<sstream>
+#include"stog_poljem.h"
+
+
+
+
+using namespace std;
+
+int main() {
+	//prepisi obrnutim redoslijedom znaci stog
+
+	fstream dat("Life_expectancy.csv");
+	ofstream out("reverse2.csv");
+	if (!dat && !out)
+	{
+		cout << "greska" << endl;
+		return 404;
+	}
+
+	stog_poljem stog;
+
+	ELTYPE header;
+
+	getline(dat, header);//baci header
+	stog.push(header);//ubacuje header na VRH stoga
+	ELTYPE element;
+	int counter = 0;
+	while (getline(dat, element))
+	{
+		//cout << element << endl;
+		stog.push(element);//ubacuje element na VRH stoga
+		counter++;
+
+	}
+	//cout << counter << endl;
+
+	dat.close();
+
+	
+
+	while (!stog.is_empty())
+	{
+		
+		ELTYPE el;
+		stog.top(el);
+		
+		cout << el << endl; //cita s vrha i printa al ga ne uklanja
+		stog.pop(el);   //cita iz vrha, izvlaci u datoteku i uklanja
+		out << el << endl;
+	}
+
+
+	out.close();
+
+
+
+	return 0;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+						//2.vjezbe, 3 zadatak    
+								//studenti, polje, slucjna vrijednost od do
+
+#ifndef _STUDENT_H_
+#define _STUDENT_H_
+#include <string>
+
+using namespace std;
+
+class student {
+private:
+	string ime;
+	string prezime;
+	int god_rodjenja;
+public:
+	void inicijaliziraj(string ime, string prezime, int god_rodjenja);
+	string to_string();
+};
+#endif
+#include <sstream>
+#include "student.h"
+
+using namespace std;
+
+void student::inicijaliziraj(string ime, string prezime, int god_rodjenja) {
+	this->ime = ime;
+	this->prezime = prezime;
+	this->god_rodjenja = god_rodjenja;
+}
+
+string student::to_string() {
+	stringstream ss;
+	ss << ime << ", " << prezime << ", " << god_rodjenja;
+	return ss.str();
+}
+#include <iostream>
+#include <ctime>
+#include "student.h"
+
+
+int generate_random(int min, int max) {
+    return rand() % (max - min + 1) + min;
+}
+
+void kreiraj_studente(student* polje, int n) {
+
+	srand(time(nullptr));
+	for (int i = 0; i < n; i++) {
+		cout << "Unesite ime " << i + 1 << ". studenta:";
+		string ime;
+		getline(cin, ime);
+		cout << "Unesite ime " << i + 1 << ". studenta:";
+		string prezime;
+		getline(cin, prezime);
+		int god_rodjenja = generate_random(1961, 1997);
+		polje[i].inicijaliziraj(ime, prezime, god_rodjenja);
+	}
+}
+
+int main() {
+
+	student polje[5];
+	kreiraj_studente(polje, sizeof(polje) / sizeof(student));
+	for (int i = 0; i < sizeof(polje) / sizeof(student); i++) {
+		cout << polje[i].to_string() << endl;
+	}
+
+	return 0;
+}
+									//ubaci u binarnu
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <fstream>
+
+using namespace std;
+
+
+
+int main() {
+
+	ifstream dat("Broj_znanstvenika_na_milijun_stanovnika.csv");
+	ofstream out("nazivi_drzava.bin", ios_base::binary);
+
+	if (!dat || !out) {
+		cout << "Unable to open file" << endl;
+		return 1;
+	}
+
+	string temp;
+	getline(dat, temp);//prvi red
+
+	while (getline(dat,temp))
+	{
+		
+		stringstream ss;
+		ss << temp;
+
+
+		string naziv;
+		getline(ss, naziv, ';');//naziv
+		getline(ss, temp); //ostatak u smece
+		//cout << naziv << endl;
+
+		//sad upisat u binarnu
+		string ime = naziv;
+		short duljina = ime.length();
+		out.write((char*)(&duljina), duljina);
+		out.write(ime.c_str(), duljina);
+
+	}
+	
+	dat.close();
+
+
+
+	return 0;
+}
+
+											//polje i prosjek i sve
+
+#include<iostream>
+#include<string>
+#include<sstream>
+#include<fstream>
+#include<ctime>
+#include "high_res_timer.h"
+
+using namespace std;
+
+int generiraj_random(int min, int max) {
+	
+	return rand() % (max - min + 1) + min;
+
+}
+
+int main() {
+	hr_timer timer;
+	int polje[10000];
+	srand(time(nullptr));
+
+	start_hr_timer(timer);
+
+	double zbroj = 0;
+	for (int i = 0; i < 10000; i++)
+	{
+		polje[i]=generiraj_random(1, 5);
+		cout << polje[i]<< endl;
+		
+		zbroj += polje[i];
+	}
+	
+	
+	cout << "PRosjek: " << zbroj / 10000 << endl;
+	stop_hr_timer(timer);
+	cout<< fixed << get_elapsed_time_microsec(timer)/1000 << endl;
+
+	return 0;
+}
+						
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 										//binarne citanje:
 ifstream is("banke.bin", ios_base::binary);
 int n; //za int
@@ -315,75 +815,7 @@ int main() {
 
 	return 0;
 }
-										//2.vjezbe, 3 zadatak
-								//studenti, polje, slucjna vrijednost od do
-
-#ifndef _STUDENT_H_
-#define _STUDENT_H_
-#include <string>
-
-using namespace std;
-
-class student {
-private:
-	string ime;
-	string prezime;
-	int god_rodjenja;
-public:
-	void inicijaliziraj(string ime, string prezime, int god_rodjenja);
-	string to_string();
-};
-#endif
-#include <sstream>
-#include "student.h"
-
-using namespace std;
-
-void student::inicijaliziraj(string ime, string prezime, int god_rodjenja) {
-	this->ime = ime;
-	this->prezime = prezime;
-	this->god_rodjenja = god_rodjenja;
-}
-
-string student::to_string() {
-	stringstream ss;
-	ss << ime << ", " << prezime << ", " << god_rodjenja;
-	return ss.str();
-}
-#include <iostream>
-#include <ctime>
-#include "student.h"
-
-
-int generate_random(int min, int max) {
-    return rand() % (max - min + 1) + min;
-}
-
-void kreiraj_studente(student* polje, int n) {
-
-	srand(time(nullptr));
-	for (int i = 0; i < n; i++) {
-		cout << "Unesite ime " << i + 1 << ". studenta:";
-		string ime;
-		getline(cin, ime);
-		cout << "Unesite ime " << i + 1 << ". studenta:";
-		string prezime;
-		getline(cin, prezime);
-		int god_rodjenja = generate_random(1961, 1997);
-		polje[i].inicijaliziraj(ime, prezime, god_rodjenja);
-	}
-}
-
-int main() {
-
-	student polje[5];
-	kreiraj_studente(polje, sizeof(polje) / sizeof(student));
-	for (int i = 0; i < sizeof(polje) / sizeof(student); i++) {
-		cout << polje[i].to_string() << endl;
-	}
-
-	return 0;
-}
+										
 
 
 										//2.vjezbe, 4 zadatak     binarne
@@ -647,96 +1079,8 @@ POSITION lista_poljem::find(double min) {    //dodaj u listu, vraca prvi elemen 
 	//}
 
 
-									//1.4 vjezbe //ubaci random brojeve u dinam
-#include <iostream>
-#include <ctime>
-#include "lista_dinamicka.h"
-#include "high_res_timer.h"
-
-using namespace std;
-
-int random(int min, int max) {
-	return rand() % (max - min + 1) + min;
-}
-
-
-int main() {
-	srand(time(nullptr));
-
-	lista_dinamicka lista;
-	hr_timer timer;
-
-	start_hr_timer(timer);
-	for (int i = 0; i < 100000; i++) {
-		ELTYPE broj = random(1, 100);
-		lista.insert(broj, lista.first());
-	}
-
-	double suma = 0;
-	int nr_elem = 0;
-	for (POSITION i = lista.first(); i != lista.end(); i = lista.next(i)) {
-		ELTYPE broj;
-		lista.read(i, broj);
-		suma += broj;
-		nr_elem++;
-	}
-
-	stop_hr_timer(timer);
-
-	cout << "Prosjek brojeva: " << suma / nr_elem << endl;
-	cout << "Vrijeme potrebno: " << get_elapsed_time_microsec(timer)/1000 << endl;
-	return 0;
-}
-                                                                      //5.zadatak 4 vjezbe
-
-	lista_dinamicka lista;
-
-
-	string temp;
-	getline(dat, temp);//prvi red
-
-	while ((getline(dat,temp)))
-	{
-		//cout << temp << endl;
-		stringstream ss;
-		ss << temp;//bacva
-
-		string smece;
-		ELTYPE drzava;
-		getline(ss, drzava.naziv, ';');
-		getline(ss, drzava.sifra, ';');
-
-		getline(ss, smece);
-
-		lista.insert(drzava, lista.first());
-
-	}
-
-	/*for (POSITION i = lista.first(); i != lista.end(); i=lista.next(i))
-	{
-		ELTYPE element;
-		lista.read(i, element);
-		cout << element.naziv << "; " << element.sifra << endl;
-	}*/
-
-	dat.close();
-
-	//sad od korisnika ucitat slovo da 
-
-	char slovo;
-	cout << "Unesi slovo" << endl;
-	cin >> slovo;
-
-	for (POSITION i = lista.first(); i != lista.end(); i = lista.next(i))
-	{
-		ELTYPE element;
-		lista.read(i, element);
-
-		if (toupper(element.naziv[0]) == toupper(slovo))
-		{
-			cout << element.naziv << endl;		}	}
-
-										//2.5.vjezbe stog
+									
+												//2.5.vjezbe stog
 #include <iostream>
 #include <string>
 #include <fstream>
