@@ -1,0 +1,444 @@
+--ishod 2
+
+
+
+CREATE DATABASE Baza;
+GO
+USE Baza;
+GO
+
+create table Drzava
+(
+IDDrzava int primary key identity,
+Naziv nvarchar (100) not null
+
+)
+create table Grad
+(
+IDGrad int primary key identity,
+Naziv nvarchar (100) not null,
+DrzavaID int,
+foreign key(DrzavaID) references Drzava (IDDrzava)
+)
+create table Kupac
+(
+IDKupac int primary key identity,
+Ime nvarchar (100) not null,
+Prezime nvarchar (100) not null,
+Email nvarchar (100) not null,
+Telefon nvarchar (100) not null,
+GradID int,
+foreign key(GradID) references Grad(IDGrad)
+
+
+)
+
+
+
+
+
+
+--ZADATAK 4 ispisi proizv cijena od do. Poredaj po boji padajuce, za istu boju od jeftiniji prema skupljima
+
+select* from Proizvod
+where CijenaBezPDV >1000 AND CijenaBezPDV<1200
+order by Boja Desc, CijenaBezPDV Asc 
+
+
+--ZADATAK 5  ubaci novu kk koja vrijedi do
+
+select* from KreditnaKartica
+insert KreditnaKartica
+(Tip,Broj,IstekMjesec,IstekGodina)
+values('Novakartica','54666','1','2021')
+
+--ZADATAK 6  kupcu postavi da je iz moskve, izmisli ostale podatke
+select * from Kupac
+where Ime='James' AND Prezime='Fine'
+
+select * from Grad   --zenica je br 10, ok
+select * from Drzava --nema rusije pa treba ubaciti
+insert Drzava
+(Naziv)
+values('Rusija') --rusija je sad broj 4 IDDrzava
+
+insert Grad
+(Naziv,DrzavaID)
+values('Moskva',4) --moskva je sad br 14 IDGrad
+
+update Kupac
+set
+GradID=14
+where Ime='James' AND Prezime='Fine' AND GradID=10
+
+--zadatak 7   za kupca kreirat racun s datumom 11.sij.2016, neki br.racuna, 200proizvoda "Men's.., 50kn po kom, 50posto popusta, ukupno 5000kn
+select * from Kupac
+where Ime='Tina'AND Prezime like 'O_Dell'  --IDKupac je 633
+
+select*from Komercijalist  --neka bude npr 283
+select * from KreditnaKartica  --neka bude npr 14
+select * from Racun
+insert Racun
+(DatumIzdavanja, BrojRacuna, KupacID, KomercijalistID, KreditnaKarticaID)
+values('2016-01-11 00:00:00.000','SO75124',633,283,14) 
+
+select * from Racun
+where BrojRacuna='SO75124'--IDRacun ce ispast 75124
+select * from Proizvod
+where Naziv like'Men%' --bit ce IDProizv 849
+
+select * from Stavka
+where ProizvodID=849
+insert Stavka
+(RacunID, Kolicina, ProizvodID, CijenaPoKomadu, PopustUPostocima, UkupnaCijena)
+values(75124,200,849,50,50,5000) 
+select * from Stavka
+where RacunID=75124
+
+--zadatak 8  Proizvodi koji imaju potkategoriju i cijena izmedju 2000 i 3000 kn izbrisi boju jednim upitom
+
+
+select *from Proizvod
+where PotkategorijaID is not null and CijenaBezPDV>1999 and CijenaBezPDV<3001
+update Proizvod
+set
+Boja=null 
+where PotkategorijaID is not null and CijenaBezPDV>1999 and CijenaBezPDV<3001
+
+
+--zadatak 9 kupcima iz sarajeva na pocetak tel broja stavi +38...
+select *from Kupac
+where GradID =9
+update Kupac
+set
+Telefon='+38733'+Telefon
+where GradID =9
+
+
+
+
+--1 aeroklub
+--1:N I sl dodat
+--FK upisat
+DRZAVA
+*IDDrzava
+Naziv
+
+VLLETJELICE
+*IDVlletjelice
+Ime
+Prezime
+
+SUDIONIK
+*IDSudionik
+Ime
+Prezime
+VlletjeliceID
+DrzavaID
+
+PROGRAM
+*IDProgram
+SudionikID
+SudjelovanjeID
+VrstaletjeliceID
+Vrijeme
+Datum
+
+Sudjelovanje
+*IDSudjelovanje
+Naziv
+
+Vrstaletjelice
+*IDVrsta
+Naziv
+
+
+
+--not null je obavezno
+
+
+--ribolov
+SUDIONIK
+*ID
+Ime,Prezime, Spol…
+DrzavaID
+
+DRZAVA
+*ID
+Naziv
+
+KATEGORIJE
+*ID
+Naziv
+
+LOKACIJA
+*ID
+Naziv
+
+
+STATUSSUDIONIKA
+*ID
+Naziv
+
+NATJECANJE
+*ID
+SudID
+KatID
+LokID
+StatsudID
+JezeroID
+
+
+JEZERO
+*ID
+Naziv
+
+
+--Prodaja tvrtka
+--1:N I sl dodat
+--FK upisat
+
+
+RACUN
+FK KupacID
+FK DucanID
+
+KUPAC
+Ime
+Prezime
+
+DUCAN
+Naziv
+Adresa
+VrsteducanaID
+
+VRSTE DUCANA
+Nadredjen
+Podredjen
+
+
+ARTIKL
+PopustID
+Naziv
+Kolicina
+Cijena
+
+ARTIKLAKCIJE
+RacunID
+PopustID
+AkcijaID
+ArtiklID
+
+AKCIJE
+Nazivakcije
+Vrijemeod
+Vrijemedo
+ArtiklID
+
+POPUST
+Popuststavka
+Popustracun
+
+
+
+
+
+
+
+
+
+
+--Festival
+
+POSJETITELJ
+Ime, prez…
+DrzavaID
+
+DRZAVA
+Naziv
+
+FESTIVALI
+Naziv
+
+KONCERT
+Naziv
+FestID
+
+DANI ODRZAVANJA
+Naziv
+KoncertID
+
+KONCERT
+Pocetak
+Zavrsetak
+IzvodjacID
+PozornicaID
+
+ULAZNICA
+PozornicaID
+DaniodrzID
+
+POZORNICA
+Naziv
+
+IZVODAC
+ID
+Naziv
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+USE master
+
+CREATE DATABASE Mikroprodaja
+
+USE Mikroprodaja
+
+
+CREATE TABLE GrupaProizvoda
+(	
+	IDGrupe		int				PRIMARY KEY,
+	Naziv		nvarchar(100)	NOT NULL
+)
+
+CREATE TABLE Proizvod
+(	
+	IDProizvoda			int				PRIMARY KEY,
+	Naziv				nvarchar(100)	NOT NULL,
+	Cijena				money			NOT NULL,
+	GrupaProizvodaID	int				NOT NULL
+	FOREIGN KEY (GrupaProizvodaID) REFERENCES GrupaProizvoda(IDGrupe)
+)
+
+CREATE TABLE ProdajnoMjesto
+(	
+	IDProdajnogMjesta		int				PRIMARY KEY,
+	Naziv					nvarchar(100)	NOT NULL,
+	Adresa					nvarchar(100)	NULL,
+	GrupaProizvodaID		int				NOT NULL	
+	FOREIGN KEY(GrupaProizvodaID)	REFERENCES	GrupaProizvoda(IDGrupe)
+)
+
+CREATE TABLE Zaposlenik
+(	
+	IDZaposlenik	int				PRIMARY KEY,
+	OIB				char(11)			NULL,
+	Ime				nvarchar(100)	NOT NULL,
+	Prezime			nvarchar(100)	NOT NULL,
+	NadredjeniID		int				NULL,
+	ProdajnoMjestoID	int			NOT NULL
+	FOREIGN KEY (NadredjeniID)	REFERENCES Zaposlenik(IDZaposlenik),
+	FOREIGN KEY (ProdajnoMjestoID)	REFERENCES ProdajnoMjesto(IDProdajnogMjesta)
+)
+
+ALTER TABLE ProdajnoMjesto
+	ADD VoditeljID int NOT NULL	
+	FOREIGN KEY (VoditeljID) REFERENCES Zaposlenik(IDZaposlenik)
+
+
+
+/*
+Hotel
+
+Entiteti:
+	Hotel
+		IDHotel
+		Naziv
+		BrojZvjezdica
+		Adresa
+		Grad
+	
+	Soba
+		IDSoba
+		Oznaka
+		Tip
+		BrojGostiju
+		HotelID
+		
+	Gost
+		IDGost
+		Ime
+		OIB
+		Prezime
+		
+	Zauzece
+		GostID
+		SobaID
+		DatumOd
+		DatumDo
+		
+Veze:
+	Hotel	1:N	Soba 	(ob.)
+	Gost	M:N	Soba	(ob.)
+*/
+
+-- Relacijski model:
+
+CREATE DATABASE Hotel
+GO
+
+USE Hotel
+GO
+
+CREATE TABLE Hotel
+(
+	IDHotel	INT IDENTITY(1,1),
+	Naziv	NVARCHAR(25) NOT NULL,
+	BrojZvjezdica	INT NOT NULL 
+		CONSTRAINT DF_BrojZvjezdica DEFAULT 3
+		CONSTRAINT CH_BrojZvjezdica CHECK (BrojZvjezdica BETWEEN 1 AND 5),
+	Adresa	NVARCHAR(25) NOT NULL,
+	Grad	NVARCHAR(25) NOT NULL
+	CONSTRAINT PK_Hotel PRIMARY KEY (IDHotel)
+)
+GO
+
+CREATE TABLE Soba
+(
+	IDSoba	INT IDENTITY(1,1),
+	Oznaka	CHAR(5) NOT NULL,
+	Tip		NVARCHAR(25) NOT NULL,
+	BrojGostiju INT NOT NULL,	
+	HotelID	INT NOT NULL
+	CONSTRAINT PK_Soba PRIMARY KEY (IDSoba),
+	CONSTRAINT FK_Soba_Hotel FOREIGN KEY (HotelID) REFERENCES Hotel(IDHotel)
+)
+GO
+
+CREATE TABLE Gost
+(
+	IDGost	INT IDENTITY(1,1),
+	Ime	NVARCHAR(25) NOT NULL,
+	Prezime	NVARCHAR(25) NOT NULL,
+	OIB CHAR(11) NOT NULL CONSTRAINT UQ_OIB UNIQUE,
+	CONSTRAINT PK_Gost PRIMARY KEY (IDGost)
+)
+GO
+
+CREATE TABLE Zauzece
+(
+	IDZauzece	INT IDENTITY(1,1),
+	GostID	INT NOT NULL,
+	SobaID	INT NOT NULL,
+	DatumOd	DATETIME NOT NULL,
+	DatumDo	DATETIME NOT NULL,
+	CONSTRAINT PK_Zauzece PRIMARY KEY (IDZauzece),
+	CONSTRAINT FK_Zauzece_Gost FOREIGN KEY (GostID) REFERENCES Gost(IDGost),
+	CONSTRAINT FK_Zauzece_Soba FOREIGN KEY (SobaID) REFERENCES Soba(IDSoba),
+	CONSTRAINT UQ_Zauzece UNIQUE (GostID, SobaID, DatumOd, DatumDo)
+)
+GO
+
+
